@@ -1,0 +1,8 @@
+prefix=/home/beshari/catkin_ws/devel
+
+Name: kr210_claw_moveit
+Description: Description of kr210_claw_moveit
+Version: 0.3.0
+Cflags: 
+Libs: -L/home/beshari/catkin_ws/devel/lib 
+Requires: 

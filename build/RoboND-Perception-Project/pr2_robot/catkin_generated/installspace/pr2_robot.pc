@@ -1,0 +1,8 @@
+prefix=/home/beshari/catkin_ws/install
+
+Name: pr2_robot
+Description: Description of pr2_robot
+Version: 0.0.0
+Cflags: -I/home/beshari/catkin_ws/install/include
+Libs: -L/home/beshari/catkin_ws/install/lib 
+Requires: 

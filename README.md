@@ -121,8 +121,8 @@ For corss validation, a repetition of 20 was enough for the first  scene, howeve
 
 For the project, a general accuracy of *97%* of identifying objects was acheived
 
-The confusion matrices below shows the non-normalized and normalized results for a test case using the trained model generated above.
-
+The confusion matrices below shows the non-normalized and normalized results for a test case using the trained model generated above.  
+The training for the third test scene normalized result:
 ![Confusion matrix][figure_2]
 
 ## PR2 Robot Simulation

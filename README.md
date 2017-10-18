@@ -1,6 +1,3 @@
-# RoboProj3
-Udacity Robotic's Perception Challenge
-
 
 # 3D Perception Project
 ---

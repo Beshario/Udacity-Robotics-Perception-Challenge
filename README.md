@@ -38,7 +38,7 @@ The three main parts of perception are: filtering the data, clustering relevant 
 
 First, the data is stored as a [point cloud data](https://en.wikipedia.org/wiki/Point_cloud) The raw point cloud object from the PR2 simulation looks like this:
 
-![raw cloud object][pipeline_0_raw_cloud]
+![raw cloud object][voxel downsampling]
 
 ### Outlier Removal Filter
 

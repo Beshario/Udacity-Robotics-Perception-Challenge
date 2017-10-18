@@ -117,17 +117,16 @@ The Robot can extract color and normal histograms of objects
 
 A support vector machine (SVM) is used to train the model. The SVM creates a model from a predefined histogram data from a training set. the training set file is generated from `capture_features_pr2.py` script, then the robot classifies to best what it see to the model it made of what it already learned (cool huh?). a *linear kernel* using a C value of *0.1* is found accurate.
 
-For corss validation, a repetition of 20 was enough for the first  scene, however, 40 repetitions were enough for the other two worlds.
+For corss validation, a repetition of 20 was enough for the first scene, however, 40 repetitions were enough for the other two worlds.
 
-For the project, a general accuracy of *97%* of identifying objects was acheived
-
+For the project, the object identification general accuracy was of *97%* 
 The confusion matrices below shows the non-normalized and normalized results for a test case using the trained model generated above.  
 The training for the third test scene normalized result:
 ![Confusion matrix][figure_2]
 
 ## PR2 Robot Simulation
 
-The PR2 robot simulation has three test scenes to evaluate the object recognition pipeline. The following sections demonstrate each scenario.
+The PR2 robot simulation has three test scenes to evaluate the object recognition pipeline. The following sections demonstrate each one:
 
 ### Test 1
 

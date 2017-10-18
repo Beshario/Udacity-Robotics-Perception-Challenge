@@ -28,10 +28,9 @@ Udacity Robotic's Perception Challenge
 
 
 
+![demo-1](https://user-images.githubusercontent.com/20687560/28748231-46b5b912-7467-11e7-8778-3095172b7b19.png)
 
-![pr2 robot][pr2_robot]
-
-This project is about programming the robot to make it (understand) what the robot is seeing via an RGB-D camera. an RGB-D camera is like a normal camera with a depth sensor. therefore it registers information about the colours (RGB sensors) and depth (distances from the camera to object surfaces).
+This project is about programming the robot to make it (understand) what it sees via an RGB-D camera. an RGB-D camera is like a normal camera with a depth sensor. therefore it registers information about the colours (RGB sensors) and depth (distances from the camera to object surfaces).
 
 This report will go through the pipeline of Robot Perception
 
@@ -56,39 +55,38 @@ First, the data is stored as a [point cloud data](https://en.wikipedia.org/wiki/
 
 Sensors come with noise data, in the case of RGB-D cameras, they are manifested as random colour and spacial points over the image. In order to filter the noise, a method as the [PCL's StatisticalOutlierRemoval filter](http://pointclouds.org/documentation/tutorials/statistical_outlier.php) computes an average distance to a group of points, if a point is too far whose mean distances are outside a defined interval (determined by a given standard deviation) are removed.
 
-For the PR2 simulation, I found that a mean k value of *20* and a standard deviation threshold of *0.1* provided the optimal outlier filtering. Here is the cloud after performing the outlier removal filter.
-
-![outlier removal filtering][pipeline_1_outlier_removal_filter]
+For the PR2 simulation, a mean k value of *20* and a standard deviation of *0.1* provided a cleaner image.
 
 ### Voxel Grid Filter
 
-![voxel grid filter][pipeline_2_voxel_grid_filter]
+![voxel grid filter][voxel0 01]
 a voxel to a voxel  is the volume equivalent of a pixel to an image,
 
-A voxel downsamples the data by taking the average of the data points inside of it(RGB and Depth). therefore the set of points are statistically represented by that voxel
+A voxel downsamples the data by taking the average of the data points inside of it(RGB and Depth). therefore the new set of points are statistically represented by that voxel
 
-a Voxel of *0.01*mm was used, small enough to not leave important details out and easy to compute
+a Voxel of *0.01*mm was used, small enough to not leave important details out and efficient to compute
+
 ### Passthrough Filter
 
-![passthrough filter][pipeline_3_passthrough_filter]
+![passthrough filter][passthrough filter]
 
 Passthrough filter is a 3D-cropping mechanism that works by cropping from two ends along a specified axis.
 
-The PR2 robot simulation needed two passthrough filters for both the Y and Z axis (global). This prevented processing values outside the area immediately in front of the robot. For the Y-axis, a range of *-0.4* to *0.4* was used, and for the Z axis, a range of *0.61* to *0.9* was used.
+The PR2 robot simulation needed two passthrough filters for both the Y and Z axis (global). This lets the robot focus only on what it is important. For the Y-axis,  whatever was out of *-0.4* to *0.4* was cropped, and for the Z axis, it was whatever was outside of  *0.6* to *0.9*.
 
 ### RANSAC Plane Segmentation
 
 Random sample consensus is an iterative model that tests an example of points in a dataset to see if it fits a certain model (here, a group of points are tested if they fit a relationship equation that describes a plane surface in 3D) 
-after certain iterations, a model can be confirmed existent (a plane is found at certain points), the dataset is divided into groups, inliers are the points that fit the model, outliers are the ones that do not fit --this method could be also used to as outlier removal method--.
+after certain iterations, a model can be confirmed existent (a plane is found at certain points), the dataset is then divided into groups, inliers are the points that fit the model, outliers are the ones that do not fit --this method could be also used  as outlier removal method--.
 
-A max distance value of *0.01* was used
+A max distance value of *0.01* was used as the same voxel size
 
 The extracted inliers included the table.
-![RANSAC plane segmentation - extracted inliers][pipeline_4_extracted_inliers]
+![RANSAC plane segmentation - extracted inliers][extracte inliners]
 
 The extracted outliers was everything else( the objects on the table):
 
-![RANSAC plane segmentation - extracted outliers][pipeline_5_extracted_outliers]
+![RANSAC plane segmentation - extracted outliers][extracted outliers]
 
 ## Clustering for Segmentation
 
@@ -118,58 +116,43 @@ because KDtree is a spacial data type (based on spatial info) the data was conve
 
  the clusters from the cloud and randomly coloured each cluster as shown:
 
-![DBSCAN object cluster][dbscan_object_cluster]
+![DBSCAN object cluster][clsutering]
 
 ## Object Recognition
 
-The object recognition code allows each cluster to be examined and identified. In order to do this, the system first needs to get trained to make a model to learn what each object looks like. Once it makes the model, the system can make predict which object it sees.
+The object recognition code allows each cluster to be examined and identified. In order to do this, the system first needs to get trained to make a model to learn what each object looks like. Once it makes the model, the system can then predict which object it sees.
 
-### Capture Object Features
-
-The code for building the histograms can be found in [features.py](PR2-Project/sensor_stick/src/sensor_stick/features.py).
-
-The [capture_features_pr2.py](PR2-Project/sensor_stick/scripts/capture_features_pr2.py) script saved the object features to a file named `training_set_pr2.sav`. It captured each object in *50* random orientations, using the *HSV* color space and *128* bins when creating the image histograms.
+The Robot can extract color and normal histograms of objects
 
 ### Train SVM Model
 
-A support vector machine (SVM) is used to train the model (specifically a SVC). The SVM loads the training set generated from the `capture_features_pr2.py` script, and prepares the raw data for classification. I found that a *linear kernel* using a C value of *0.1* builds a model with good accuracy.
+A support vector machine (SVM) is used to train the model. The SVM creates a model from a predefined histogram data from a training set. the training set file is generated from `capture_features_pr2.py` script, then the robot classifies to best what it see to the model it made of what it already learned (cool huh?). a *linear kernel* using a C value of *0.1* is found accurate.
 
-I experimented with cross-validation of the model and found that a *50* fold cross validation worked best. A *leave one out* cross-validation strategy provided marginally better accuracy results, however, it required much longer to process.
+For corss validation, a repetition of 20 was enough for the first  scene, however, 40 repetitions were enough for the other two worlds.
 
-In the end, I was able to generate an accuracy score of 92.17%. The [train_svm.py](PR2-Project/RoboND-Perception-Project/pr2_robot/scripts/train_svm.py) script trained the SVM, saving the final model as `model.sav`.
+For the project, a general accuracy of *97%* of identifying objects was acheived
 
 The confusion matrices below shows the non-normalized and normalized results for a test case using the trained model generated above.
 
-![Confusion matrices for the non-normalized and normalized test case][confusion_matrices]
+![Confusion matrix][figure_2]
 
 ## PR2 Robot Simulation
 
-The PR2 robot simulation has three test scenarios to evaluate the object recognition performance. The following sections demonstrate each scenario.
+The PR2 robot simulation has three test scenes to evaluate the object recognition pipeline. The following sections demonstrate each scenario.
 
 ### Test 1
 
-![Test 1 object recognition][test_1_object_recognition]
+![Test 1 object recognition][scene1]
 
-View the goal [pick list](PR2-Project/RoboND-Perception-Project/pr2_robot/config/pick_list_1.yaml), and the calculated [output values](PR2-Project/RoboND-Perception-Project/pr2_robot/scripts/output_1.yaml).
 
 ### Test 2
 
-![Test 2 object recognition][test_2_object_recognition]
+![Test 2 object recognition][output2]
 
-View the goal [pick list](PR2-Project/RoboND-Perception-Project/pr2_robot/config/pick_list_2.yaml), and the calculated [output values](PR2-Project/RoboND-Perception-Project/pr2_robot/scripts/output_2.yaml).
 
 ### Test 3
 
-![Test 3 object recognition][test_3_object_recognition]
+![Test 3 object recognition][screenshot from 2017-10-17 03-16-35][test_3_object_recognition]
 
-View the goal [pick list](PR2-Project/RoboND-Perception-Project/pr2_robot/config/pick_list_3.yaml), and the calculated [output values](PR2-Project/RoboND-Perception-Project/pr2_robot/scripts/output_3.yaml).
 
-## Code Sources
-
-The original Udacity perception exercise code can be found [here](https://github.com/udacity/RoboND-Perception-Exercises). To install the exercise data on your own computer, view the installation guide [here](Install_Guide.md).
-
-The PR2 3D perception project code source can be found [here](https://github.com/udacity/RoboND-Perception-Project). Follow the instructions in the README.md to get the demo code working.
-
-## Run the Simulation
-
-View instructions for running the code mentioned above [here](PR2-Project/RoboND-Perception-Project/pr2_robot/scripts/README.md).
+Please Do find the Training Set, model and out Yaml files in the output folder

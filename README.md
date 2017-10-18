@@ -33,14 +33,6 @@ This report will go through the pipeline of Robot Perception
 
 The three main parts of perception are: filtering the data, clustering relevant objects, and recognizing objects the clustered objects.
 
-## Contents
-
-- [Filtering](#filtering)
-- [Clustering for Segmentation](#clustering-for-segmentation)
-- [Object Recognition](#object-recognition)
-- [PR2 Robot Simulation](#pr2-robot-simulation)
-- [Code Sources](#code-sources)
-- [Run the Simulation](#run-the-simulation)
 
 ## Filtering
 

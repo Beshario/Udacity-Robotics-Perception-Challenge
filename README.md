@@ -121,7 +121,7 @@ A support vector machine (SVM) is used to train the model. The SVM creates a mod
 For corss validation, a repetition of 20 was enough for the first scene, however, 40 repetitions were enough for the other two worlds.
 
 For the project, the object identification general accuracy was of *97%* 
-The confusion matrices below shows the non-normalized and normalized results for a test case using the trained model generated above.  
+The confusion matrices below shows the normalized results for a test case using the trained model generated above.  
 The training for the third test scene normalized result:
 ![Confusion matrix][figure_2]
 
